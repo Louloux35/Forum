@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Odyssée de l'Ingénieur : Mission Conception</title>
+    <style>
+        /* === RESET ET VARIABLES === */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary-color: #0ea5e9; /* Bleu tech */
+            --primary-hover: #0284c7;
+            --bg-overlay: rgba(15, 23, 42, 0.85); /* Fond carte sombre et bleuté */
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+        }
+
+        /* === STYLES GLOBAUX === */
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #0f172a; /* Couleur de secours */
+            /* Transition douce pour le changement d'image de fond */
+            transition: background-image 0.5s ease-in-out; 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-main);
+            padding: 20px;
+        }
+
+        /* === CARTE PRINCIPALE (GLASSMORPHISM) === */
+        #game-card {
+            background: var(--bg-overlay);
+            backdrop-filter: blur(12px); /* Effet verre dépoli */
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { font-size: 1.8rem; margin-bottom: 1rem; color: #38bdf8; }
+        p#story-text { font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem; }
+
+        /* === BOUTONS (CHOIX) === */
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        button {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        button:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3);
+        }
+
+        /* === SECTION EXPLICATION MÉTIER (POUR LES FINS) === */
+        #role-explanation {
+            display: none;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        #role-explanation strong { color: #38bdf8; }
+
+        /* === RESPONSIVE (SMARTPHONES) === */
+        @media (max-width: 600px) {
+            #game-card { padding: 1.5rem; }
+            h1 { font-size: 1.5rem; }
+            p#story-text { font-size: 1rem; }
+            button { font-size: 0.95rem; padding: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-card">
+        <h1 id="chapter-title">Titre du chapitre</h1>
+        <p id="story-text">Texte de l'histoire ici...</p>
+        
+        <div id="choices-container" class="choices-container">
+            </div>
+
+        <div id="role-explanation">
+            </div>
+    </div>
+
+    <script>
+        // === DONNÉES DE L'HISTOIRE ===
+        // Change les URLs dans 'bgImage' pour mettre tes propres images (ex: 'img/fond_labo.jpg')
+        // Si l'URL est vide, le fond sera sombre.
+        const storyData = {
+            ch1: {
+                title: "Chapitre 1 : Le point de départ",
+                text: "Te voilà fraîchement diplômé(e), ton stylo 4 couleurs à la main, prêt(e) à conquérir le monde de l'industrie. Ton manager te pose une question fondamentale : « Qu'est-ce qui te motive le matin ? Veux-tu concevoir de nouvelles choses ? »",
+                bgImage: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1920&auto=format&fit=crop", 
+                choices: [
+                    { text: "A. Évidemment ! Je veux créer, inventer, donner vie à de nouveaux produits.", target: "ch2" },
+                    { text: "B. Bof. Moi, je préfère optimiser ce qui existe déjà, faire en sorte qu'une usine tourne à la perfection.", target: "finA" },
+                    { text: "C. Concevoir pour quelqu'un d'autre ? Jamais ! J'ai 12 idées de start-ups par minute.", target: "finB" }
+                ]
+            },
+            ch2: {
+                title: "Chapitre 2 : La matière ou l'esprit",
+                text: "Bienvenue dans le monde de la conception ! Ton prochain projet vient de tomber. Préfères-tu qu'il s'agisse de :",
+                bgImage: "https://images.unsplash.com/photo-1581092335397-9583eb92d232?q=80&w=1920&auto=format&fit=crop",
+                choices: [
+                    { text: "A. Quelque chose de matériel ! De la CAO, de la méca, je veux tenir le prototype.", target: "ch3" },
+                    { text: "B. Restons dans l'abstrait. De l'ingénierie système, des architectures globales, du code.", target: "ch4" }
+                ]
+            },
+            ch3: {
+                title: "Chapitre 3 : L'horizon temporel",
+                text: "On te confie la conception d'un nouveau vélo électrique. Quelle approche te fait vibrer ?",
+                bgImage: "https://images.unsplash.com/photo-1532054955740-f1d2dfbc5f5c?q=80&w=1920&auto=format&fit=crop",
+                choices: [
+                    { text: "A. Le client le veut dans 6 mois. J'utilise la CAO pour optimiser un cadre réalisable et rentable.", target: "ch5" },
+                    { text: "B. Le client s'en fiche. Je veux passer 3 ans en labo pour inventer un alliage qui n'existe pas encore.", target: "finC" }
+                ]
+            },
+            ch4: {
+                title: "Chapitre 4 : La matrice",
+                text: "Tu as choisi l'immatériel. Ton chef de projet te propose deux missions. Laquelle choisis-tu ?",
+                bgImage: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?q=80&w=1920&auto=format&fit=crop",
+                choices: [
+                    { text: "A. Définir l'architecture système d'un satellite (comment le logiciel interagit avec les capteurs).", target: "ch5" },
+                    { text: "B. Mettre mes écouteurs et coder des algos pendant 6 mois sans parler au client.", target: "finD" }
+                ]
+            },
+            ch5: {
+                title: "Chapitre 5 : Le Cahier des Charges",
+                text: "Tu reçois un cahier des charges de 150 pages envoyé par le client. Quelle est ta première action ?",
+                bgImage: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1920&auto=format&fit=crop",
+                choices: [
+                    { text: "A. Je le lis en diagonale et je lance direct mon logiciel pour modéliser. L'action avant tout !", target: "ch6" },
+                    { text: "B. Je le lis attentivement, je surligne les contradictions et je planifie une réunion pour challenger le besoin.", target: "ch7" }
+                ]
+            },
+            ch6: {
+                title: "Chapitre 6 : L'impatience",
+                text: "Tu as foncé tête baissée. Ton modèle est magnifique, mais lors de la simulation, tout s'effondre. Les contraintes n'étaient pas respectées.",
+                bgImage: "https://images.unsplash.com/photo-1580894894513-541e068a3ea2?q=80&w=1920&auto=format&fit=crop",
+                choices: [
+                    { text: "A. Je bidouille les paramètres jusqu'à ce que le logiciel dise oui.", target: "ch8" },
+                    { text: "B. Je ravale ma fierté. Je retourne lire le cahier des charges et poser les équations.", target: "ch7" }
+                ]
+            },
+            ch7: {
+                title: "Chapitre 7 : Le grand compromis",
+                text: "Le client veut une pièce super robuste, extrêmement légère, à moins de 2 euros. C'est l'essence de la conception : le compromis.",
+                bgImage: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1920&auto=format&fit=crop",
+                choices: [
+                    { text: "A. J'étudie plusieurs scénarios (matériaux, évidement) et je propose des choix chiffrés au client.", target: "ch9" },
+                    { text: "B. Je dis « oui » au client pour lui faire plaisir, même si la physique l'interdit.", target: "ch6" }
+                ]
+            },
+            ch8: {
+                title: "Chapitre 8 : La Tour d'Ivoire",
+                text: "Tu as conçu un produit sublime... mais impossible à fabriquer. L'ingénieur Production vient te voir en pleurant car tes tolérances sont absurdes.",
+                bgImage: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1920&auto=format&fit=crop",
+                choices: [
+                    { text: "A. Ce n'est pas mon problème, mon modèle 3D est parfait. Débrouillez-vous !", target: "finE" },
+                    { text: "B. Oups. On s'assoit, tu m'expliques tes machines, et j'adapte mon design (Design For Manufacturing).", target: "ch9" }
+                ]
+            },
+            ch9: {
+                title: "Chapitre 9 : L'épreuve du feu",
+                text: "Le premier prototype est assemblé. Sous la charge maximale, une petite pièce cède avec un gros CRACK.",
+                bgImage: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=1920&auto=format&fit=crop",
+                choices: [
+                    { text: "A. Catastrophe ! Je veux un environnement prévisible sans échec !", target: "finA" },
+                    { text: "B. Excellent ! J'analyse la zone de rupture et j'itère pour la V2.", target: "ch10" }
+                ]
+            },
+            ch10: {
+                title: "Chapitre 10 : Le Lancement !",
+                text: "La V2 est parfaite. Ton produit passe l'industrialisation. Un matin, tu vois une personne utiliser le produit que tu as imaginé à partir d'une page blanche.",
+                bgImage: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1920&auto=format&fit=crop",
+                choices: [
+                    { text: "A. Admirer le travail accompli.", target: "finF" }
+                ]
+            },
+
+            // === LES FINS ===
+            finA: {
+                title: "FIN : L'As de la Production 🏭",
+                text: "Ton truc, ce n'est pas la page blanche ni les essais infructueux, mais l'efficacité, le terrain et le flux ! Tu t'épanouiras davantage en tant qu'Ingénieur Production ou Amélioration Continue.",
+                bgImage: "https://images.unsplash.com/photo-1610491462702-42e6ecefcbd9?q=80&w=1920&auto=format&fit=crop",
+                roleExplanation: "<strong>Différence avec la Conception :</strong> L'ingénieur en conception crée la définition du produit (plans, nomenclatures, 3D). L'ingénieur de production, lui, se concentre sur le <em>comment</em> le fabriquer en série : optimisation des lignes d'assemblage, gestion des équipes ouvrières, réduction des temps de cycle et des coûts de fabrication.",
+                choices: [{ text: "🔄 Recommencer l'aventure", target: "ch1" }]
+            },
+            finB: {
+                title: "FIN : L'Entrepreneur dans l'âme 🚀",
+                text: "Comme l'indiquait la flèche 'ÉCHEC' sur le tableau blanc, tu as du mal avec les structures classiques. Tu es fait pour monter ta propre startup, pitcher tes idées et lever des fonds !",
+                bgImage: "https://images.unsplash.com/photo-1556761175-5973dc0f32d7?q=80&w=1920&auto=format&fit=crop",
+                roleExplanation: "<strong>Différence avec la Conception :</strong> Si l'ingénieur conception résout des problèmes techniques pointus, l'entrepreneur gère l'incertitude globale (business plan, marketing, recherche de clients). Le concepteur fait marcher le produit, l'entrepreneur s'assure qu'il se vende et que l'entreprise survive.",
+                choices: [{ text: "🔄 Recommencer l'aventure", target: "ch1" }]
+            },
+            finC: {
+                title: "FIN : Le Chercheur R&D 🔬",
+                text: "Tu n'es pas un simple concepteur de produits finis, tu es un explorateur de l'Inconnu ! Tu repousses les limites de la science fondamentale.",
+                bgImage: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=1920&auto=format&fit=crop",
+                roleExplanation: "<strong>Différence avec la Conception :</strong> La R&D (Recherche & Développement) se situe très en amont. Le chercheur prouve qu'une technologie est viable en laboratoire (souvent sans contrainte de coût immédiate). Le concepteur récupère cette technologie mature pour l'intégrer dans un produit concret, commercialisable et fabricable à grande échelle.",
+                choices: [{ text: "🔄 Recommencer l'aventure", target: "ch1" }]
+            },
+            finD: {
+                title: "FIN : Le Développeur Pur 💻",
+                text: "L'ingénierie système pluridisciplinaire te donne des maux de tête. Toi, tu aimes l'algorithmique pure, le code propre et les bases de données.",
+                bgImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1920&auto=format&fit=crop",
+                roleExplanation: "<strong>Différence avec la Conception :</strong> Le développeur (Software Engineer) se concentre sur l'architecture et l'écriture du code. L'ingénieur en conception (orienté système ou produit) doit souvent gérer les interfaces entre ce code, le matériel électronique (hardware) et la mécanique physique qui l'entoure.",
+                choices: [{ text: "🔄 Recommencer l'aventure", target: "ch1" }]
+            },
+            finE: {
+                title: "FIN : Le Concepteur Déconnecté 🛑",
+                text: "GAME OVER. Un bon ingénieur en conception ne travaille jamais seul. Concevoir un objet qui ne peut pas être fabriqué ne sert à rien.",
+                bgImage: "https://images.unsplash.com/photo-1528310263305-b1a72a912166?q=80&w=1920&auto=format&fit=crop",
+                roleExplanation: "<strong>La leçon :</strong> La conception est un métier carrefour. Un excellent concepteur est en dialogue permanent avec les achats (pour le coût), la production (pour la faisabilité) et le marketing (pour l'usage client). Rester isolé devant son logiciel de CAO mène inévitablement à l'échec du projet.",
+                choices: [{ text: "🔄 Recommencer l'aventure", target: "ch1" }]
+            },
+            finF: {
+                title: "LE GRAAL : INGÉNIEUR EN CONCEPTION 🏆",
+                text: "Félicitations ! Tu as survécu aux compromis impossibles et aux simulations ratées. Tu possèdes l'ADN d'un véritable Ingénieur en Conception : curiosité, esprit de synthèse et résilience.",
+                bgImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1920&auto=format&fit=crop",
+                roleExplanation: "<strong>Le Cœur du Métier :</strong> L'ingénieur en conception est le chef d'orchestre technique. Son but est de transformer un besoin abstrait (un cahier des charges) en une réalité concrète et optimisée. Il doit marier la créativité avec la rigueur des lois de la physique, tout en respectant des coûts et des délais stricts.",
+                choices: [{ text: "🔄 Refaire une partie", target: "ch1" }]
+            }
+        };
+
+        // === LOGIQUE DE L'APPLICATION ===
+        const titleEl = document.getElementById('chapter-title');
+        const textEl = document.getElementById('story-text');
+        const choicesEl = document.getElementById('choices-container');
+        const explanationEl = document.getElementById('role-explanation');
+        const bodyEl = document.body;
+
+        function renderChapter(chapterId) {
+            const chapter = storyData[chapterId];
+            
+            // Mise à jour du texte
+            titleEl.textContent = chapter.title;
+            textEl.textContent = chapter.text;
+
+            // Mise à jour du fond
+            if(chapter.bgImage) {
+                // Un léger dégradé noir est superposé à l'image pour garantir la lisibilité
+                bodyEl.style.backgroundImage = `linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.9)), url('${chapter.bgImage}')`;
+            } else {
+                bodyEl.style.backgroundImage = 'none';
+            }
+
+            // Gestion de l'explication des métiers (uniquement sur les fins)
+            if (chapter.roleExplanation) {
+                explanationEl.innerHTML = chapter.roleExplanation;
+                explanationEl.style.display = 'block';
+            } else {
+                explanationEl.style.display = 'none';
+            }
+
+            // Vider les anciens boutons
+            choicesEl.innerHTML = '';
+
+            // Créer les nouveaux boutons
+            chapter.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.textContent = choice.text;
+                btn.onclick = () => {
+                    // Petite animation de fondu lors du clic
+                    document.getElementById('game-card').style.animation = 'none';
+                    setTimeout(() => {
+                        document.getElementById('game-card').style.animation = 'fadeIn 0.4s ease-out';
+                        renderChapter(choice.target);
+                    }, 50);
+                };
+                choicesEl.appendChild(btn);
+            });
+        }
+
+        // Lancement du jeu au démarrage
+        renderChapter('ch1');
+
+    </script>
+</body>
+</html>
